@@ -7,9 +7,10 @@ function SettingsPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    displayName: '',
-    email:       '',
-    theme:       'light',
+    firstName: '',
+    lastName:  '',
+    email:     '',
+    theme:     'light',
   });
 
   const [formErrors, setFormErrors] = useState({});  // field-level errors
@@ -26,9 +27,11 @@ function SettingsPage() {
         const data = await getSettings();
         const savedTheme = localStorage.getItem('theme'); // check localStorage first
         const theme = savedTheme || data.theme || 'light';
+        const stored = JSON.parse(localStorage.getItem('user') || '{}');
         setForm({
-          displayName: data.displayName || '',
-          email:       data.email       || '',
+          firstName: stored.firstName || '',
+          lastName:  stored.lastName  || '',
+          email:     data.email || stored.email || '',
           theme,
         });
         document.body.classList.toggle('dark-mode', theme === 'dark');
@@ -55,8 +58,16 @@ function SettingsPage() {
   // Client-side validation for required fields
   const validate = () => {
     const errs = {};
-    if (!form.displayName.trim()) {
-      errs.displayName = 'Display name is required';
+    const NAME_REGEX = /^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/;
+    if (!form.firstName.trim()) {
+      errs.firstName = 'First name is required';
+    } else if (!NAME_REGEX.test(form.firstName.trim())) {
+      errs.firstName = 'Name may only contain letters, spaces, hyphens, and apostrophes';
+    }
+    if (!form.lastName.trim()) {
+      errs.lastName = 'Last name is required';
+    } else if (!NAME_REGEX.test(form.lastName.trim())) {
+      errs.lastName = 'Name may only contain letters, spaces, hyphens, and apostrophes';
     }
     if (!form.theme) {
       errs.theme = 'Theme is required';
@@ -78,8 +89,13 @@ function SettingsPage() {
 
     setSaving(true);
     try {
-      await updateSettings(form);
+      await updateSettings({ firstName: form.firstName.trim(), lastName: form.lastName.trim(), theme: form.theme });
+      const stored = JSON.parse(localStorage.getItem('user') || '{}');
+      stored.firstName = form.firstName.trim();
+      stored.lastName  = form.lastName.trim();
+      localStorage.setItem('user', JSON.stringify(stored));
       localStorage.setItem('theme', form.theme);
+      window.dispatchEvent(new Event('user-profile-updated'));
       setSuccess('Settings saved successfully!');
     } catch (err) {
       setApiError(err.message || 'Failed to save settings. Please try again.');
@@ -115,20 +131,37 @@ function SettingsPage() {
         <>
         <form className="settings-form" onSubmit={handleSubmit} noValidate>
 
-          {/* ── Required field 1: Display Name ── */}
+          {/* ── First Name ── */}
           <div className="form-group">
-            <label htmlFor="displayName">Display Name</label>
+            <label htmlFor="firstName">First Name</label>
             <input
-              id="displayName"
-              name="displayName"
+              id="firstName"
+              name="firstName"
               type="text"
-              value={form.displayName}
+              value={form.firstName}
               onChange={handleChange}
-              placeholder="Your full name"
-              className={formErrors.displayName ? 'input-error' : ''}
+              placeholder="Your first name"
+              className={formErrors.firstName ? 'input-error' : ''}
             />
-            {formErrors.displayName && (
-              <span className="error-msg">{formErrors.displayName}</span>
+            {formErrors.firstName && (
+              <span className="error-msg">{formErrors.firstName}</span>
+            )}
+          </div>
+
+          {/* ── Last Name ── */}
+          <div className="form-group">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              value={form.lastName}
+              onChange={handleChange}
+              placeholder="Your last name"
+              className={formErrors.lastName ? 'input-error' : ''}
+            />
+            {formErrors.lastName && (
+              <span className="error-msg">{formErrors.lastName}</span>
             )}
           </div>
 

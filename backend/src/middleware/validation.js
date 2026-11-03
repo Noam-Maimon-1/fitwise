@@ -1,5 +1,5 @@
 const validateId = (id) => {
-    return !isNaN(Number(id));
+    return Number.isInteger(Number(id)) && Number(id) > 0;
 };
 
 const getMissingFields = (body, requiredFields) => {

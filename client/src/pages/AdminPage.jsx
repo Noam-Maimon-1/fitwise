@@ -244,8 +244,16 @@ function AdminPage() {
   const validateAddUser = () => {
     const f = addUserForm;
     const errs = {};
-    if (!f.firstName.trim())  errs.firstName  = 'First name is required';
-    if (!f.lastName.trim())   errs.lastName   = 'Last name is required';
+    if (!f.firstName.trim()) {
+      errs.firstName = 'First name is required';
+    } else if (!/^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/.test(f.firstName.trim())) {
+      errs.firstName = 'Name may only contain letters, spaces, hyphens, and apostrophes';
+    }
+    if (!f.lastName.trim()) {
+      errs.lastName = 'Last name is required';
+    } else if (!/^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/.test(f.lastName.trim())) {
+      errs.lastName = 'Name may only contain letters, spaces, hyphens, and apostrophes';
+    }
     if (!f.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))
       errs.email = 'Valid email is required';
     if (!f.password || f.password.length < 6)

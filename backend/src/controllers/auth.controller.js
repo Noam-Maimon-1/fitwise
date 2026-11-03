@@ -62,6 +62,14 @@ const register = async (req, res) => {
             return sendValidationError(res, 'Missing required fields', { missingFields });
         }
 
+        if (!/^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/.test(String(firstName).trim())) {
+            return sendValidationError(res, 'Name may only contain letters, spaces, hyphens, and apostrophes', { field: 'firstName', value: firstName });
+        }
+
+        if (!/^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/.test(String(lastName).trim())) {
+            return sendValidationError(res, 'Name may only contain letters, spaces, hyphens, and apostrophes', { field: 'lastName', value: lastName });
+        }
+
         const existing = await UsersModel.findByEmail(email);
         if (existing) {
             return sendValidationError(res, 'An account with this email already exists', { field: 'email', value: email });
@@ -89,6 +97,26 @@ const register = async (req, res) => {
                 allowedValues: ['male', 'female', 'other'],
                 value: gender
             });
+        }
+
+        if (!Number.isInteger(Number(age)) || Number(age) < 13 || Number(age) > 120) {
+            return sendValidationError(res, 'Age must be a whole number between 13 and 120', { field: 'age', value: age });
+        }
+
+        if (Number(height) < 100 || Number(height) > 250) {
+            return sendValidationError(res, 'Height must be between 100 and 250 cm', { field: 'height', value: height });
+        }
+
+        if (Number(weight) < 30 || Number(weight) > 300) {
+            return sendValidationError(res, 'Weight must be between 30 and 300 kg', { field: 'weight', value: weight });
+        }
+
+        if (!Number.isInteger(Number(workoutsPerWeek)) || Number(workoutsPerWeek) < 1 || Number(workoutsPerWeek) > 7) {
+            return sendValidationError(res, 'Workouts per week must be a whole number between 1 and 7', { field: 'workoutsPerWeek', value: workoutsPerWeek });
+        }
+
+        if (!Number.isInteger(Number(mealsPerDay)) || Number(mealsPerDay) < 1 || Number(mealsPerDay) > 8) {
+            return sendValidationError(res, 'Meals per day must be a whole number between 1 and 8', { field: 'mealsPerDay', value: mealsPerDay });
         }
 
         const newUser = await UsersModel.create({

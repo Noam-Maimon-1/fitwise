@@ -47,8 +47,16 @@ function RegisterPage() {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!form.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!form.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!form.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    } else if (!/^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/.test(form.firstName.trim())) {
+      newErrors.firstName = 'Name may only contain letters, spaces, hyphens, and apostrophes';
+    }
+    if (!form.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    } else if (!/^[a-zA-Zא-ת '\-]*[a-zA-Zא-ת][a-zA-Zא-ת '\-]*$/.test(form.lastName.trim())) {
+      newErrors.lastName = 'Name may only contain letters, spaces, hyphens, and apostrophes';
+    }
     if (!form.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!emailRegex.test(form.email)) {

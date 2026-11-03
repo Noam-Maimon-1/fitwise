@@ -103,8 +103,8 @@ const createUser = async (req, res) => {
             });
         }
 
-        if (!['male', 'female'].includes(gender)) {
-            return sendValidationError(res, 'Invalid gender', { field: 'gender', allowedValues: ['male', 'female'], value: gender });
+        if (!['male', 'female', 'other'].includes(gender)) {
+            return sendValidationError(res, 'Invalid gender', { field: 'gender', allowedValues: ['male', 'female', 'other'], value: gender });
         }
 
         if (!['user', 'admin', 'manager'].includes(userRole)) {

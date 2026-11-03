@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Card from '../components/Card';
 import DataTable from '../components/DataTable';
 import { getCheckIns, createCheckIn } from '../services/checkInService';
 import { getAIRecommendations, generateAIRecommendations } from '../services/aiService';
@@ -199,6 +200,18 @@ function CheckInsPage() {
 
       {!loading && (
         <>
+          {/* Progress Summary Card */}
+          <Card
+            title="Progress Summary"
+            subtitle={`${checkIns.length} check-in${checkIns.length !== 1 ? 's' : ''} recorded`}
+            badge={hasEnoughCheckIns ? 'AI Ready' : `${checkIns.length} / ${AI_MIN_CHECKINS}`}
+            accentColor={hasEnoughCheckIns ? '#00b894' : '#fdcb6e'}
+            stats={[
+              { label: 'Total Check-Ins', value: checkIns.length },
+              { label: 'Latest Weight',   value: sortedDesc.length ? `${sortedDesc[0].weight} kg` : '—' },
+            ]}
+          />
+
           {/* Add check-in toggle */}
           <div className="add-checkin-toggle">
             <button

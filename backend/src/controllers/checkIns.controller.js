@@ -87,12 +87,17 @@ const createCheckIn = async (req, res) => {
 
         const { checkInDate, weight, workoutsCompleted, feedback } = req.body;
 
-        if (typeof weight !== 'number' || weight <= 0) {
-            return sendValidationError(res, 'Invalid weight value', { field: 'weight', value: weight });
+        if (typeof weight !== 'number' || weight < 30 || weight > 300) {
+            return sendValidationError(res, 'Weight must be a number between 30 and 300 kg', { field: 'weight', value: weight });
         }
 
-        if (typeof workoutsCompleted !== 'number' || workoutsCompleted < 0) {
-            return sendValidationError(res, 'Invalid workouts completed value', { field: 'workoutsCompleted', value: workoutsCompleted });
+        if (typeof workoutsCompleted !== 'number' || workoutsCompleted < 0 || workoutsCompleted > 7) {
+            return sendValidationError(res, 'Workouts completed must be a number between 0 and 7', { field: 'workoutsCompleted', value: workoutsCompleted });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        if (!checkInDate || checkInDate < '2000-01-01' || checkInDate > today) {
+            return sendValidationError(res, 'Date must be between 2000-01-01 and today', { field: 'checkInDate', value: checkInDate });
         }
 
         const newCheckIn = await CheckInsModel.create({ userId: requestUserId, weight, workoutsCompleted, feedback, checkInDate });
@@ -133,12 +138,17 @@ const updateCheckIn = async (req, res) => {
 
         const { checkInDate, weight, workoutsCompleted, feedback } = req.body;
 
-        if (typeof weight !== 'number' || weight <= 0) {
-            return sendValidationError(res, 'Invalid weight value', { field: 'weight', value: weight });
+        if (typeof weight !== 'number' || weight < 30 || weight > 300) {
+            return sendValidationError(res, 'Weight must be a number between 30 and 300 kg', { field: 'weight', value: weight });
         }
 
-        if (typeof workoutsCompleted !== 'number' || workoutsCompleted < 0) {
-            return sendValidationError(res, 'Invalid workouts completed value', { field: 'workoutsCompleted', value: workoutsCompleted });
+        if (typeof workoutsCompleted !== 'number' || workoutsCompleted < 0 || workoutsCompleted > 7) {
+            return sendValidationError(res, 'Workouts completed must be a number between 0 and 7', { field: 'workoutsCompleted', value: workoutsCompleted });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        if (!checkInDate || checkInDate < '2000-01-01' || checkInDate > today) {
+            return sendValidationError(res, 'Date must be between 2000-01-01 and today', { field: 'checkInDate', value: checkInDate });
         }
 
         const updated = await CheckInsModel.update(id, { weight, workoutsCompleted, feedback, checkInDate });

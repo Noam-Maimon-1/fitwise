@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { logout } from '../services/authService';
 import './Navbar.css';
@@ -6,11 +6,22 @@ import './Navbar.css';
 function Navbar() {
   const navigate = useNavigate();
 
-  // Read the user object stored in localStorage after login.
-  // Before LoginPage is connected, this will be null → shows "User" placeholder.
   const raw = localStorage.getItem('user');
   const user = raw ? JSON.parse(raw) : null;
-  const fullName = user ? `${user.firstName} ${user.lastName}` : 'User';
+
+  const getFullName = () => {
+    const r = localStorage.getItem('user');
+    const u = r ? JSON.parse(r) : null;
+    return u ? `${u.firstName} ${u.lastName}` : 'User';
+  };
+
+  const [fullName, setFullName] = useState(getFullName);
+
+  useEffect(() => {
+    const sync = () => setFullName(getFullName());
+    window.addEventListener('user-profile-updated', sync);
+    return () => window.removeEventListener('user-profile-updated', sync);
+  }, []);
 
   const handleLogout = async () => {
     try {
