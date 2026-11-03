@@ -245,7 +245,9 @@ The backend's `authorize` middleware reads `x-user-role` directly. **There is no
 
 ## Demo Accounts
 
-These accounts are inserted by the seed script. All passwords are `password123`.
+These accounts are inserted by the seed script. All passwords are `password123` (stored as bcrypt hashes).
+
+> Upgrading a database created before password hashing was added? Run `node scripts/hashExistingPasswords.js` from `backend/` once — it hashes any remaining plaintext passwords in place.
 
 | Email | Role | Name |
 |---|---|---|
@@ -604,7 +606,6 @@ These are intentional simplifications for a university project context.
 | Limitation | Detail |
 |---|---|
 | **No real authentication** | Auth headers (`userid`, `x-user-role`) are sent unverified by the client. Any user can impersonate another by changing localStorage. |
-| **No password hashing** | Passwords are stored and compared in plain text. Never deploy this publicly. |
 | **Single-origin CORS** | The backend only allows requests from `http://localhost:5173`. Changing either port requires updating `backend/server.js` and the Socket.IO init options. |
 | **Frontend API URL is hardcoded** | `client/src/services/api.js` points to `http://localhost:3000`. If you change the backend port, update this file manually. |
 | **Gemini API rate limits** | The free tier of the Gemini API has per-minute request limits. Rapid registrations or repeated `/replan` calls may hit these limits. |

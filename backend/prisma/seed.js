@@ -1,4 +1,5 @@
 const prisma = require('./prismaClient');
+const UsersModel = require('../models/users.model');
 
 // ---------------------------------------------------------------------
 // Users (ids 1-6)
@@ -517,7 +518,11 @@ async function main() {
     await prisma.user.deleteMany();
 
     // Recreate, parent before child, with explicit ids preserved.
-    await prisma.user.createMany({ data: users });
+    // Demo accounts share one plaintext password; store only its bcrypt hash.
+    const demoHashes = await Promise.all(users.map(u => UsersModel.hashPassword(u.password)));
+    await prisma.user.createMany({
+        data: users.map((u, i) => ({ ...u, password: demoHashes[i] }))
+    });
     console.log(`Seeded ${users.length} users`);
 
     await prisma.exercise.createMany({ data: exercises });

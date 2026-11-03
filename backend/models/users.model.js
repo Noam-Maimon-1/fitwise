@@ -1,11 +1,15 @@
+const bcrypt = require('bcryptjs');
 const prisma = require('../prisma/prismaClient');
 
+const BCRYPT_ROUNDS = 10;
+
+// Public shape of a user. Deliberately excludes the password hash so it can
+// never leak through an API response.
 const mapUser = (u, updateDate) => ({
     userid: u.id,
     firstName: u.first_name,
     lastName: u.last_name,
     email: u.email,
-    password: u.password,
     createDate: u.created_at,
     updateDate: updateDate || u.created_at,
     userRole: u.role,
@@ -32,13 +36,24 @@ const findByEmail = async (email) => {
     return user ? mapUser(user) : null;
 };
 
+// Login only: returns the public user plus the stored hash.
+// Never send this object to a client.
+const findCredentialsByEmail = async (email) => {
+    const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
+    return user ? { user: mapUser(user), passwordHash: user.password } : null;
+};
+
+const verifyPassword = (plainPassword, passwordHash) => bcrypt.compare(plainPassword, passwordHash);
+
+const hashPassword = (plainPassword) => bcrypt.hash(plainPassword, BCRYPT_ROUNDS);
+
 const create = async (data) => {
     const created = await prisma.user.create({
         data: {
             first_name: data.firstName,
             last_name: data.lastName,
             email: data.email,
-            password: data.password,
+            password: await hashPassword(data.password),
             role: data.userRole
         },
         include: { profile: true }
@@ -92,4 +107,7 @@ const remove = async (id) => {
     }
 };
 
-module.exports = { getAll, getById, findByEmail, create, update, remove };
+module.exports = {
+    getAll, getById, findByEmail, findCredentialsByEmail,
+    verifyPassword, hashPassword, create, update, remove
+};

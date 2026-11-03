@@ -49,8 +49,7 @@ const getUserById = async (req, res) => {
             return sendNotFound(res, 'User not found', {});
         }
 
-        const { password, ...safeUser } = user;
-        return sendSuccess(res, 200, safeUser);
+        return sendSuccess(res, 200, user);
     } catch (err) {
         console.error('[Users]', err);
         return sendServerError(res);
@@ -72,8 +71,7 @@ const getMe = async (req, res) => {
             return sendNotFound(res, 'User not found', {});
         }
 
-        const { password, ...safeUser } = user;
-        return sendSuccess(res, 200, safeUser);
+        return sendSuccess(res, 200, user);
     } catch (err) {
         console.error('[Users]', err);
         return sendServerError(res);

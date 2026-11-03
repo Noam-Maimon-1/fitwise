@@ -17,9 +17,11 @@ const login = async (req, res) => {
             });
         }
 
-        const user = await UsersModel.findByEmail(email);
+        const credentials = await UsersModel.findCredentialsByEmail(email);
+        const isValid = credentials !== null
+            && await UsersModel.verifyPassword(String(password), credentials.passwordHash);
 
-        if (!user || user.password !== password) {
+        if (!isValid) {
             return res.status(401).json({
                 success: false,
                 data: null,
@@ -27,6 +29,7 @@ const login = async (req, res) => {
             });
         }
 
+        const { user } = credentials;
         return sendSuccess(res, 200, {
             userId: user.userid,
             firstName: user.firstName,
